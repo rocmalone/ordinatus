@@ -10,6 +10,27 @@ HWND GetSFMLWindowHandle(sf::RenderWindow& window) {
     return static_cast<HWND>(window.getNativeHandle());
 }
 
+/// <summary>
+/// Disable the animation for minimizing the launcher
+/// </summary>
+/// <returns></returns>
+static bool DisableMinimizeAnimation() {
+    ANIMATIONINFO animInfo;
+    animInfo.cbSize = sizeof(animInfo);
+    animInfo.iMinAnimate = 0; // Disable animation
+
+    return SystemParametersInfo(SPI_SETANIMATION, sizeof(animInfo), &animInfo, 0);
+}
+
+static bool EnableMinimizeAnimation() {
+    ANIMATIONINFO animInfo;
+    animInfo.cbSize = sizeof(animInfo);
+    animInfo.iMinAnimate = 1; // Enable animation
+
+    return SystemParametersInfo(SPI_SETANIMATION, sizeof(animInfo), &animInfo, 0);
+}
+
+
 void ToggleSFMLWindowVisibility() {
     if (!windowPtr)
         return;
@@ -21,9 +42,24 @@ void ToggleSFMLWindowVisibility() {
         isWindowVisible = true;
     }
     else {
+        DisableMinimizeAnimation();
         ShowWindow(hwnd, SW_HIDE);
         isWindowVisible = false;
+        EnableMinimizeAnimation();
     }
+}
+
+
+static void ConfigureWindowStyle(HWND hwnd) {
+    // Get current window style
+    LONG_PTR style = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
+
+    // Remove WS_EX_APPWINDOW (show taskbar icon) and add WS_EX_TOOLWINDOW (no taskbar icon)
+    style &= ~WS_EX_APPWINDOW;
+    style |= WS_EX_TOOLWINDOW;
+
+    // Apply style
+    SetWindowLongPtr(hwnd, GWL_EXSTYLE, style);
 }
 
 // Low-level keyboard hook callback function
@@ -53,13 +89,14 @@ void RemoveKeyboardHook() {
 
 int main()
 {
-
     SetKeyboardHook();
     
 
-    auto window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "CMake SFML Project");
+    auto window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "CMake SFML Project", sf::Style::None);
     window.setFramerateLimit(144);
     windowPtr = &window;
+
+    ConfigureWindowStyle(GetSFMLWindowHandle(window));
 
     // Hide the launcher window initially
     ShowWindow(GetSFMLWindowHandle(window), SW_HIDE);
