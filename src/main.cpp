@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <Windows.h>
 
 int main()
 {
