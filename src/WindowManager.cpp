@@ -1,7 +1,6 @@
 #include "WindowManager.h"
 #include "Utils.h"
 #include <iostream>
-#include <format>
 
 /// <summary>
 /// Callback function for EnumWindows, adds visible window titles to vector
