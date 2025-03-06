@@ -1,30 +1,30 @@
 #include "WindowManager.h"
 #include "Utils.h"
 #include <iostream>
+#include "WindowRenderer.h"
+#include "OSearchBox.h"
 
-/// <summary>
-/// Callback function for EnumWindows, adds visible window titles to vector
-/// </summary>
-BOOL CALLBACK EnumWindowsCallback(HWND hwnd, LPARAM lParam) {
-    char title[256];
-    // If the window is visible and has a title
-    if (IsWindowVisible(hwnd) 
-        && GetWindowText(hwnd, title, sizeof(title)) > 0
-        && isWindowInTaskbarAndRoot(hwnd)) {
-        
-        auto* titles = reinterpret_cast<std::vector<std::string>*>(lParam);
-        titles->push_back(title);
-    }
-    return TRUE;
-}
 
 WindowManager::WindowManager()
-    : window(sf::RenderWindow(sf::VideoMode({ 1920u, 1080u }), "CMake SFML Project", sf::Style::None)) {
+    : window(sf::RenderWindow(sf::VideoMode({ 600u, 400u }), "CMake SFML Project", sf::Style::None)) {
 
     window.setFramerateLimit(120);
     font = loadSystemFont("arial.ttf"); // Load system font
     configureWindowStyle();
     ShowWindow(getNativeHandle(), SW_HIDE); // Hide initially
+}
+
+BOOL CALLBACK EnumWindowsCallback(HWND hwnd, LPARAM ptr_titles) {
+    char title[256];
+    // If the window is visible, has a title, in taskbar, and is the root window of the app
+    if (IsWindowVisible(hwnd) 
+        && GetWindowText(hwnd, title, sizeof(title)) > 0
+        && isWindowInTaskbarAndRoot(hwnd)) {
+        
+        auto* titles = reinterpret_cast<std::vector<std::string>*>(ptr_titles);
+        titles->push_back(title);
+    }
+    return TRUE;
 }
 
 /// <summary>
@@ -69,41 +69,30 @@ void WindowManager::toggleVisibility() {
     isVisible = !isVisible;
 }
 
-/// <summary>
-/// Draw the list of visible windows onto the SFML window
-/// </summary>
-void WindowManager::draw() {
-    window.clear(sf::Color::Black);
-    sf::Text text(font, "default", 18);
-    text.setFillColor(sf::Color::White);
-
-    float y = 20.0f;
-    int i = 1;
-    for (const std::string& title : windowTitles) {
-        std::string displayText = title;
-        if (i < 5) {
-            displayText = "Ctrl + " + std::to_string(i) + " - " + title;
-        }
-        text.setString(displayText);
-        text.setPosition(sf::Vector2f(10.0f, y));
-        window.draw(text);
-        y += 25.0f;
-        i += 1;
-    }
-}
-
 void WindowManager::run() {
+    
+    WindowRenderer renderer(window);
+    OSearchBox searchBox(100, 150, 300, 50, font);
     while (window.isOpen())
     {
+
         while (const std::optional event = window.pollEvent())
         {
+            if (!event.has_value()) {
+                continue;
+            }
+
             if (event->is<sf::Event::Closed>())
             {
                 window.close();
             }
+            searchBox.handleEvent(*event, window);
         }
+        window.clear(sf::Color::Black);
+        renderer.drawWindowTitlesText(windowTitles, font);
+        searchBox.draw(window);
         
-        draw();
+        
 
         window.display();
     }

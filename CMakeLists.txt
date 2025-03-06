@@ -12,6 +12,6 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(main src/main.cpp "src/WindowManager.h" "src/WindowManager.cpp" "src/KeyboardHook.h" "src/KeyboardHook.cpp" "src/Utils.h" "src/Utils.cpp")
+add_executable(main src/main.cpp "src/WindowManager.h" "src/WindowManager.cpp" "src/KeyboardHook.h" "src/KeyboardHook.cpp" "src/Utils.h" "src/Utils.cpp" "src/KeyboardHotkeys.cpp" "src/KeyboardHotkeys.h" "src/WindowRenderer.cpp" "src/WindowRenderer.h" "src/OSearchBox.cpp")
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics)
