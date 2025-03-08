@@ -13,8 +13,6 @@ void ToggleLauncherVisibility() {
 }
 
 int main() {
-    disableMinimizeAnimation();
-
     WindowManager windowManager;
     g_windowManager = &windowManager;
 

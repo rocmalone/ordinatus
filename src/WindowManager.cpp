@@ -14,15 +14,17 @@ WindowManager::WindowManager()
     ShowWindow(getNativeHandle(), SW_HIDE); // Hide initially
 }
 
-BOOL CALLBACK EnumWindowsCallback(HWND hwnd, LPARAM ptr_titles) {
+BOOL CALLBACK EnumWindowsCallback(HWND hwnd, LPARAM ptr_winInfo) {
     char title[256];
     // If the window is visible, has a title, in taskbar, and is the root window of the app
     if (IsWindowVisible(hwnd) 
         && GetWindowText(hwnd, title, sizeof(title)) > 0
         && isWindowInTaskbarAndRoot(hwnd)) {
-        
-        auto* titles = reinterpret_cast<std::vector<std::string>*>(ptr_titles);
-        titles->push_back(title);
+        WindowInfo wInfo;
+        wInfo.hwnd = hwnd;
+        wInfo.title = title;
+        auto* winInfos = reinterpret_cast<std::vector<WindowInfo>*>(ptr_winInfo);
+        winInfos->push_back(wInfo);
     }
     return TRUE;
 }
@@ -48,10 +50,15 @@ void WindowManager::configureWindowStyle() {
 /// Update the list of currently open windows
 /// </summary>
 void WindowManager::updateWindowList() {
-    windowTitles.clear();
-    EnumWindows(EnumWindowsCallback, reinterpret_cast<LPARAM>(&windowTitles));
+    windows.clear();
+    EnumWindows(EnumWindowsCallback, reinterpret_cast<LPARAM>(&windows));
 }
 
+void WindowManager::focusWindow(HWND hwnd) {
+    if (SetForegroundWindow(hwnd)) {
+        return;
+    }
+}
 /// <summary>
 /// Toggle the visibility of the SFML window
 /// </summary>
@@ -89,7 +96,7 @@ void WindowManager::run() {
             searchBox.handleEvent(*event, window);
         }
         window.clear(sf::Color::Black);
-        renderer.drawWindowTitlesText(windowTitles, font);
+        renderer.drawWindowTitlesText(windows, font);
         searchBox.draw(window);
         
         
