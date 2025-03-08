@@ -12,7 +12,7 @@ void (*shiftWinArrowCallback)(int) = nullptr;
 bool winKeyDown = false;
 bool ctrlKeyDown = false;
 bool shiftKeyDown = false;
-bool openLauncher = true;
+bool openLauncherOnWinKeyUp = true;
 
 LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     if (nCode == HC_ACTION) {
@@ -22,6 +22,10 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
             if (pKeyboardStruct->vkCode == VK_LWIN || pKeyboardStruct->vkCode == VK_RWIN) {
                 std::cout << "WIN KEY UP" << '\n';
                 winKeyDown = false;
+                if (openLauncherOnWinKeyUp) {
+                    winKeyUpCallback();
+                }
+                openLauncherOnWinKeyUp = true;
             }
             if (pKeyboardStruct->vkCode == VK_LCONTROL || pKeyboardStruct->vkCode == VK_RCONTROL) {
                 std::cout << "CTRL KEY UP" << '\n';
@@ -40,6 +44,9 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
                     winKeyDown = true;
                 }
                 return 1;
+            }
+            else {
+                openLauncherOnWinKeyUp = false;
             }
 
             if (pKeyboardStruct->vkCode == VK_LCONTROL || pKeyboardStruct->vkCode == VK_RCONTROL) {
