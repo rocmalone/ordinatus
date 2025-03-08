@@ -5,6 +5,10 @@
 
 void setKeyboardHook();
 void removeKeyboardHook();
-void setWindowManagerCallback(void (*callback)());
+void setWinKeyUpCallback(void (*callback)());
+void setWinArrowCallback(void (*callback)(int));
+void setCtrlWinArrowCallback(void (*callback)(int));
+void setShiftWinArrowCallback(void (*callback)(int));
+
 
 #endif

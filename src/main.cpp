@@ -6,7 +6,7 @@ WindowManager* g_windowManager = nullptr; // Global WindowManager
 
 
 // Necessary to pass a function to keyboard hook
-void ToggleWindowVisibility() {
+void ToggleLauncherVisibility() {
     if (g_windowManager) {
         g_windowManager->toggleVisibility();
     }
@@ -18,7 +18,7 @@ int main() {
     WindowManager windowManager;
     g_windowManager = &windowManager;
 
-    setWindowManagerCallback(ToggleWindowVisibility);
+    setWinKeyUpCallback(ToggleLauncherVisibility);
 
     setKeyboardHook();
     windowManager.run();
