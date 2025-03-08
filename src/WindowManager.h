@@ -5,11 +5,7 @@
 #include <Windows.h>
 #include <vector>
 #include <string>
-
-struct WindowInfo {
-    HWND hwnd;
-    std::string title;
-};
+#include "WinInfo.h"
 
 class WindowManager {
 public:
@@ -25,7 +21,7 @@ public:
 private:
     sf::RenderWindow window;
     sf::Font font;
-    std::vector<WindowInfo> windows;
+    std::vector<WinInfo> windows;
     bool isVisible;
     void draw();
 };

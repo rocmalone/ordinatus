@@ -1,7 +1,8 @@
+#include <iostream>
 #include "WindowManager.h"
 #include "Utils.h"
-#include <iostream>
 #include "WindowRenderer.h"
+#include "WinInfo.h"
 #include "OSearchBox.h"
 
 
@@ -20,10 +21,10 @@ BOOL CALLBACK EnumWindowsCallback(HWND hwnd, LPARAM ptr_winInfo) {
     if (IsWindowVisible(hwnd) 
         && GetWindowText(hwnd, title, sizeof(title)) > 0
         && isWindowInTaskbarAndRoot(hwnd)) {
-        WindowInfo wInfo;
+        WinInfo wInfo;
         wInfo.hwnd = hwnd;
         wInfo.title = title;
-        auto* winInfos = reinterpret_cast<std::vector<WindowInfo>*>(ptr_winInfo);
+        auto* winInfos = reinterpret_cast<std::vector<WinInfo>*>(ptr_winInfo);
         winInfos->push_back(wInfo);
     }
     return TRUE;
@@ -96,7 +97,7 @@ void WindowManager::run() {
             searchBox.handleEvent(*event, window);
         }
         window.clear(sf::Color::Black);
-        renderer.drawWindowTitlesText(windows, font);
+        renderer.drawWindowTitlesText(&windows, font);
         searchBox.draw(window);
         
         
